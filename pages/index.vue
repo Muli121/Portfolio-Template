@@ -40,6 +40,47 @@
         <h2>Submit Your Portfolio</h2>
         <PortfolioSubmissionForm @submit="submitPortfolio" />
       </section>
+
+      <section id="trending">
+        <h2>Trending Portfolios</h2>
+        <div class="portfolio-carousel">
+          <PortfolioCard v-for="portfolio in trendingPortfolios" :key="portfolio.id" :portfolio="portfolio" />
+        </div>
+      </section>
+
+      <section id="spotlight">
+        <h2>Portfolio Spotlight</h2>
+        <SpotlightPortfolio :portfolio="spotlightPortfolio" />
+      </section>
+
+      <section id="testimonials">
+        <h2>What Our Users Say</h2>
+        <TestimonialSlider :testimonials="testimonials" />
+      </section>
+
+      <section id="stats">
+        <h2>Portfolio Showcase Stats</h2>
+        <div class="stats-grid">
+          <StatCard v-for="stat in siteStats" :key="stat.label" :stat="stat" />
+        </div>
+      </section>
+
+      <section id="blog">
+        <h2>Latest from Our Blog</h2>
+        <div class="blog-grid">
+          <BlogPostCard v-for="post in blogPosts" :key="post.id" :post="post" />
+        </div>
+      </section>
+
+      <section id="faq">
+        <h2>Frequently Asked Questions</h2>
+        <FaqAccordion :faqs="faqs" />
+      </section>
+
+      <section id="newsletter">
+        <h2>Stay Updated</h2>
+        <NewsletterSignup @submit="subscribeToNewsletter" />
+      </section>
     </main>
 
     <footer>
@@ -53,8 +94,26 @@ import { defineComponent, ref, onMounted } from 'vue'
 import PortfolioCard from '~/components/PortfolioCard.vue'
 import CategoryButton from '~/components/CategoryButton.vue'
 import PortfolioSubmissionForm from '~/components/PortfolioSubmissionForm.vue'
-import type { Portfolio, Category } from '~/types'
-import { fetchFeaturedPortfolios, fetchRecentPortfolios, fetchCategories, submitPortfolio } from '~/api'
+import SpotlightPortfolio from '~/components/SpotlightPortfolio.vue'
+import TestimonialSlider from '~/components/TestimonialSlider.vue'
+import StatCard from '~/components/StatCard.vue'
+import BlogPostCard from '~/components/BlogPostCard.vue'
+import FaqAccordion from '~/components/FaqAccordion.vue'
+import NewsletterSignup from '~/components/NewsletterSignup.vue'
+import type { Portfolio, Category, Testimonial, Stat, BlogPost, Faq } from '~/types'
+import {
+  fetchFeaturedPortfolios,
+  fetchRecentPortfolios,
+  fetchCategories,
+  submitPortfolio,
+  fetchTrendingPortfolios,
+  fetchSpotlightPortfolio,
+  fetchTestimonials,
+  fetchSiteStats,
+  fetchBlogPosts,
+  fetchFaqs,
+  subscribeToNewsletter
+} from '~/api'
 
 export default defineComponent({
   name: 'PortfolioPage',
@@ -62,17 +121,57 @@ export default defineComponent({
     PortfolioCard,
     CategoryButton,
     PortfolioSubmissionForm,
+    SpotlightPortfolio,
+    TestimonialSlider,
+    StatCard,
+    BlogPostCard,
+    FaqAccordion,
+    NewsletterSignup,
   },
   setup() {
     const featuredPortfolios = ref<Portfolio[]>([]);
     const recentPortfolios = ref<Portfolio[]>([]);
     const categories = ref<Category[]>([]);
+    const trendingPortfolios = ref<Portfolio[]>([]);
+    const spotlightPortfolio = ref<Portfolio | null>(null);
+    const testimonials = ref<Testimonial[]>([]);
+    const siteStats = ref<Stat[]>([]);
+    const blogPosts = ref<BlogPost[]>([]);
+    const faqs = ref<Faq[]>([]);
 
     onMounted(async () => {
       try {
-        featuredPortfolios.value = await fetchFeaturedPortfolios();
-        recentPortfolios.value = await fetchRecentPortfolios();
-        categories.value = await fetchCategories();
+        const [
+          featured,
+          recent,
+          cats,
+          trending,
+          spotlight,
+          testims,
+          stats,
+          posts,
+          faqList
+        ] = await Promise.all([
+          fetchFeaturedPortfolios(),
+          fetchRecentPortfolios(),
+          fetchCategories(),
+          fetchTrendingPortfolios(),
+          fetchSpotlightPortfolio(),
+          fetchTestimonials(),
+          fetchSiteStats(),
+          fetchBlogPosts(),
+          fetchFaqs()
+        ]);
+
+        featuredPortfolios.value = featured;
+        recentPortfolios.value = recent;
+        categories.value = cats;
+        trendingPortfolios.value = trending;
+        spotlightPortfolio.value = spotlight;
+        testimonials.value = testims;
+        siteStats.value = stats;
+        blogPosts.value = posts;
+        faqs.value = faqList;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -94,12 +193,29 @@ export default defineComponent({
       }
     };
 
+    const subscribeToNewsletter = async (email: string) => {
+      try {
+        await subscribeToNewsletter(email);
+        // Show success message
+      } catch (error) {
+        console.error('Error subscribing to newsletter:', error);
+        // Show error message to the user
+      }
+    };
+
     return {
       featuredPortfolios,
       recentPortfolios,
       categories,
+      trendingPortfolios,
+      spotlightPortfolio,
+      testimonials,
+      siteStats,
+      blogPosts,
+      faqs,
       filterByCategory,
       submitPortfolio,
+      subscribeToNewsletter,
     };
   },
 });
@@ -157,5 +273,24 @@ h2 {
 footer {
   text-align: center;
   margin-top: 4rem;
+}
+
+.portfolio-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
 }
 </style>
