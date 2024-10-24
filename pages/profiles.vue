@@ -84,6 +84,33 @@
       <p>If you wish to delete your account, please contact support.</p>
       <button>Contact Support</button>
     </section>
+    <section>
+      <h2>Profile Customization</h2>
+      <p>Customize your profile appearance and settings.</p>
+      <ul>
+        <li>Choose a theme</li>
+        <li>Set a custom background</li>
+        <li>Adjust layout preferences</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Achievements</h2>
+      <p>Track your achievements and milestones.</p>
+      <ul>
+        <li>View badges earned</li>
+        <li>Set goals</li>
+        <li>Share achievements</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Help and Support</h2>
+      <p>Access help resources and support options.</p>
+      <ul>
+        <li>FAQs</li>
+        <li>Contact support</li>
+        <li>Community forums</li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -130,4 +157,3 @@ button:hover {
   background-color: #0056b3;
 }
 </style>
-
